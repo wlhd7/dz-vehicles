@@ -1,0 +1,18 @@
+[project]
+name = "dz-vehicles"
+version = "1.0.0"
+description = "Document info about vehicles"
+maintainers = [{name = "wlhd", email = "3509896163@qq.com"}]
+classifiers = ["Private :: Do Not Upload"]
+requires-python = ">=3.8"
+dependencies = [
+	"flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[project.urls]
+Homepage = "https://www.dongzhen.cn:8081"
+Repository = "git@github.com:wlhd7/dz-vehicles.git"
