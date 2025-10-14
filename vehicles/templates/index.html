@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block head %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+        <div>
+                <div class="vehicle-title">
+                        <p>车牌</p>
+                        <p>车险</p>
+                        <p>年审</p>
+                        <p>保养</p>
+                        <p>里程</p>
+                </div>
+                {% for vehicle in vehicles %}
+                        <div class="vehicle-content" data-vehicle-id="{{ vehicle['id'] }}">
+                                <p id="plate">{{ vehicle['plate'] }}</p>
+                                <p id="insurance">{{ vehicle['insurance'] }}</p>
+                                <p id="inspection">{{ vehicle['inspection'] }}</p>
+                                <p id="maintenance">{{ vehicle['maintenance'] }}</p>
+                                <p class="mileage" data-vehicle-id="{{ vehicle['id'] }}">
+                                    {{ vehicle['mileage'] or '点击设置里程' }}
+                                </p>
+                        </div>
+                {% endfor %}
+        </div>
+
+        <a href="{{ url_for('add_vehicle') }}">添加汽车</a>
+
+        <!-- 里程编辑模态框 -->
+        <div id="mileageModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>更新里程</h3>
+                <form id="mileageForm">
+                    <input type="hidden" id="editVehicleId">
+                    <label for="mileageInput">里程数:</label>
+                    <input type="number" id="mileageInput" name="mileage" min="0" step="0.1" required>
+                    <div class="modal-buttons">
+                        <button type="submit">更新</button>
+                        <button type="button" id="cancelBtn">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <style>
+        </style>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('mileageModal');
+            const mileageInput = document.getElementById('mileageInput');
+            const vehicleIdInput = document.getElementById('editVehicleId');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const mileageForm = document.getElementById('mileageForm');
+
+            // 点击里程单元格打开模态框
+            document.querySelectorAll('.mileage').forEach(element => {
+                element.addEventListener('click', function() {
+                    const vehicleId = this.getAttribute('data-vehicle-id');
+                    const currentMileage = this.textContent.trim();
+                    
+                    vehicleIdInput.value = vehicleId;
+                    
+                    // 如果当前里程不是"点击设置里程"，则设置为输入框的初始值
+                    if (currentMileage !== '点击设置里程') {
+                        mileageInput.value = currentMileage;
+                    } else {
+                        mileageInput.value = '';
+                    }
+                    
+                    modal.style.display = 'flex';
+                    mileageInput.focus();
+                });
+            });
+
+            // 取消按钮
+            cancelBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                mileageForm.reset();
+            });
+
+            // 点击模态框外部关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    mileageForm.reset();
+                }
+            });
+
+            // 提交表单
+            mileageForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const vehicleId = vehicleIdInput.value;
+                const newMileage = mileageInput.value;
+
+                if (!newMileage) {
+                    alert('请输入里程数');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/update-mileage', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            vehicle_id: vehicleId,
+                            mileage: newMileage
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // 更新页面上的里程显示
+                        const mileageElement = document.querySelector(`.mileage[data-vehicle-id="${vehicleId}"]`);
+                        mileageElement.textContent = newMileage;
+                        
+                        modal.style.display = 'none';
+                        mileageForm.reset();
+                        
+                        // 显示成功消息
+                        alert('里程更新成功！');
+                    } else {
+                        alert(result.error || '更新失败，请重试！');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('网络错误，请重试！');
+                }
+            });
+        });
+        </script>
+{% endblock %}

@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS vehicles;
+
+CREATE TABLE IF NOT EXISTS vehicles (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	plate TEXT UNIQUE NOT NULL,
+	insurance TEXT NOT NULL,
+	inspection TEXT NOT NULL,
+	maintenance TEXT NOT NULL,
+	mileage TEXT DEFAUTL 'no'
+);
