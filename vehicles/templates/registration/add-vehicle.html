@@ -32,6 +32,8 @@
 		document.getElementById('addVehicleForm').addEventListener('submit', async function(event) {
 			event.preventDefault()
 			
+			const messageDiv = document.getElementById('message')
+		
 			const formData = {
 				plate: document.getElementById('plate').value,
 				insurance: document.getElementById('insurance').value,
@@ -50,7 +52,6 @@
 
 				const result = await response.json()
 
-				const messageDiv = document.getElementById('message')
 				if (response.ok) {
 					messageDiv.textContent = result.message || '添加成功'
 					messageDiv.style.display = 'block'
@@ -65,7 +66,6 @@
 				}
 			} catch (error) {
 				console.error('Error', error)
-				const messageDiv = document.getElementById('message')
 				messageDiv.textContent = "网络错误"
 				messageDiv.style.display = 'block'
 			}

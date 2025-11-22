@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}认证审核{% endblock %}
+
+{% block content %}
+    <h2>待审核的认证申请</h2>
+
+    {% if applications|length == 0 %}
+        <p>没有待审核的申请。</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for app in applications %}
+                <tr>
+                    <td>{{ app['id'] }}</td>
+                    <td>{{ app['username'] }}</td>
+                    <td>{{ app['created'] }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('auth.audit_decide') }}" style="display:inline">
+                            <input type="hidden" name="application_id" value="{{ app['id'] }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit">通过</button>
+                        </form>
+
+                        <form method="post" action="{{ url_for('auth.audit_decide') }}" style="display:inline">
+                            <input type="hidden" name="application_id" value="{{ app['id'] }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit">拒绝</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <a href="{{ url_for('home.index') }}">返回首页</a>
+
+{% endblock %}

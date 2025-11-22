@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}身份核实{% endblock %}
+
+{% block head %}
+    <style>
+    .contact {
+        width: 200px;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2>身份核实</h2>
+    {% if g.user.is_identified == 1 %}
+        <p>已通过核实。</p>
+    {% elif g.user.is_identified == 2 %}
+        <p>已提交，请联系网管通过核实。</p>
+    {% else %}
+        <form method="post">
+            <input type="submit" value="提交">
+        </form>
+
+        <div class="contact">
+            <p>提交后请联系网管通过核实</p>
+            <p>手机号码： 19128704613</p>
+            <p>微信： 18665373915</p>
+        </div>
+    {% endif %}
+{% endblock %}

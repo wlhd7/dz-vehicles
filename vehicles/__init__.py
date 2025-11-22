@@ -1,7 +1,7 @@
 from flask import Flask
 import os
 from .db import init_db
-from .route import init_route
+from .routes import bps
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -21,6 +21,7 @@ def create_app(test_config=None):
 
     init_db(app)
 
-    init_route(app)
+    for bp in bps:
+        app.register_blueprint(bp)
 
     return app

@@ -19,6 +19,16 @@ def close_db(e=None):
     db = g.pop('db', None)
 
     if db is not None:
+        # Normal pattern: commit when there was no exception, rollback on error.
+        if e is None:
+            try:
+                db.commit()
+            except Exception:
+                # If commit fails, ensure the connection is closed.
+                pass
+        else:
+            db.rollback()
+
         db.close()
 
 

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>车辆管理</h2>
+
+<section>
+	<h3>添加车辆</h3>
+	<form id="addVehicleForm">
+		<input type="text" name="plate" id="plate" placeholder="车牌号" required>
+		<input type="text" name="insurance" id="insurance" placeholder="保险信息" required>
+		<input type="text" name="inspection" id="inspection" placeholder="年检信息" required>
+		<input type="text" name="maintenance" id="maintenance" placeholder="保养信息" required>
+		<button type="submit">添加</button>
+	</form>
+</section>
+
+<section>
+	<h3>现有车辆</h3>
+	<table id="vehiclesTable" border="1" cellpadding="6" cellspacing="0">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>车牌</th>
+				<th>保险</th>
+				<th>年检</th>
+				<th>保养</th>
+				<th>里程</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for v in vehicles %}
+			<tr data-id="{{ v['id'] }}">
+				<td>{{ v['id'] }}</td>
+				<td>{{ v['plate'] }}</td>
+				<td>{{ v['insurance'] }}</td>
+				<td>{{ v['inspection'] }}</td>
+				<td>{{ v['maintenance'] }}</td>
+				<td>{{ v['mileage'] or '' }}</td>
+				<td><button class="deleteBtn">删除</button></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</section>
+
+<script>
+document.getElementById('addVehicleForm').addEventListener('submit', async function(e){
+	e.preventDefault();
+	const plate = document.getElementById('plate').value.trim();
+	const insurance = document.getElementById('insurance').value.trim();
+	const inspection = document.getElementById('inspection').value.trim();
+	const maintenance = document.getElementById('maintenance').value.trim();
+
+	const payload = { plate, insurance, inspection, maintenance };
+
+	const res = await fetch('{{ url_for("registration.add_vehicle") }}', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(payload)
+	});
+
+	const data = await res.json();
+	if (!res.ok) {
+		alert(data.error || '添加失败');
+		return;
+	}
+
+	// Append new row to table
+	const tbody = document.querySelector('#vehiclesTable tbody');
+	const newRow = document.createElement('tr');
+	// NOTE: server does not return id, so reload to show real id
+	newRow.innerHTML = `
+		<td>--</td>
+		<td>${plate}</td>
+		<td>${insurance}</td>
+		<td>${inspection}</td>
+		<td>${maintenance}</td>
+		<td></td>
+		<td><button class="deleteBtn">删除</button></td>
+	`;
+	tbody.appendChild(newRow);
+
+	// clear form
+	document.getElementById('addVehicleForm').reset();
+
+	// prefer to refresh to get real IDs; but the UI shows the added vehicle immediately
+});
+
+// Delegate delete clicks
+document.querySelector('#vehiclesTable').addEventListener('click', async function(e){
+	if (!e.target.classList.contains('deleteBtn')) return;
+	const tr = e.target.closest('tr');
+	const id = tr.getAttribute('data-id');
+	if (!id) {
+		// If no id (just-added row), remove locally
+		tr.remove();
+		return;
+	}
+
+	if (!confirm('确认删除该车辆？')) return;
+
+	const res = await fetch('{{ url_for("registration.delete_vehicle") }}', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ id })
+	});
+
+	const data = await res.json();
+	if (!res.ok) {
+		alert(data.error || '删除失败');
+		return;
+	}
+
+	tr.remove();
+});
+</script>
+
+{% endblock %}
