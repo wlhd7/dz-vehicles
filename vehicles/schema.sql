@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS vehicles (
 	insurance TEXT NOT NULL,
 	inspection TEXT NOT NULL,
 	maintenance TEXT NOT NULL,
-	mileage TEXT DEFAULT 'no'
+	mileage TEXT DEFAULT 'no',
+	status TEXT NOT NULL DEFAULT 'returned'
 );
 
 CREATE TABLE IF NOT EXISTS users (
