@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>加油卡管理</h2>
+
+<section>
+  <h3>添加加油卡</h3>
+  <form id="addCardForm">
+    <input type="text" id="card_number" placeholder="卡号" required>
+    <input type="number" id="balance" placeholder="余额" step="0.01">
+    <button type="submit">添加</button>
+  </form>
+</section>
+
+<section>
+  <h3>现有加油卡</h3>
+  <table id="cardsTable" border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>卡号</th>
+        <th>余额</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in gas_cards %}
+      <tr data-id="{{ c['id'] }}">
+        <td>{{ c['id'] }}</td>
+        <td>{{ c['card_number'] }}</td>
+        <td>{{ c['balance'] }}</td>
+        <td><button class="deleteBtn">删除</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<script>
+document.getElementById('addCardForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const card_number = document.getElementById('card_number').value.trim();
+  const balance = parseFloat(document.getElementById('balance').value) || 0.0;
+
+  const res = await fetch('{{ url_for("gas_card.add") }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ card_number, balance })
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error || '添加失败'); return; }
+
+  const tbody = document.querySelector('#cardsTable tbody');
+  const tr = document.createElement('tr');
+  const id = data.id || '--';
+  tr.setAttribute('data-id', id);
+  tr.innerHTML = `<td>${id}</td><td>${card_number}</td><td>${balance}</td><td><button class="deleteBtn">删除</button></td>`;
+  tbody.appendChild(tr);
+  document.getElementById('addCardForm').reset();
+});
+
+document.querySelector('#cardsTable').addEventListener('click', async function(e){
+  if (!e.target.classList.contains('deleteBtn')) return;
+  const tr = e.target.closest('tr');
+  const id = tr.getAttribute('data-id');
+  if (!confirm('确认删除该加油卡？')) return;
+  const res = await fetch('{{ url_for("gas_card.delete") }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error || '删除失败'); return; }
+  tr.remove();
+});
+</script>
+
+{% endblock %}

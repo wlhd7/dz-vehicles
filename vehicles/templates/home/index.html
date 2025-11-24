@@ -5,34 +5,50 @@
         <h2>欢迎, {{ g.user.username }}!</h2>
         {% if g.user.is_identified == 1 %}
             <p>已通过核实。</p>
-            {% if request.args.get('password') %}
-                <p>取出密码: {{ request.args.get('password') }}</p>
-            {% endif %}
-            <form method="post" action="{{ url_for('lock.retrieve') }}">
+
+            <form id="retrieveForm" method="post" action="{{ url_for('lock.submit') }}">
                 <label for="vehicle">车辆</label>
                 <select name="vehicle" id="vehicle">
                     <option value="">-- 请选择车辆 --</option>
                     {% for v in vehicles %}
-                        <option value="{{ v['plate'] }}">{{ v['plate'] }}</option>
+                        <option value="{{ v['plate'] }}" data-status="{{ v['status'] }}">{{ v['plate'] }}</option>
                     {% endfor %}
                 </select>
 
                 <label for="gasCard">加油卡</label>
                 <select name="gasCard" id="gasCard" onchange="toggleGasCardInput(this)">
                     <option value="">-- 请选择加油卡 --</option>
-                        {% for card in gas_cards %}
-                            <option value="{{ card['card_number'] }}">{{ card['card_number'] }}</option>
-                        {% endfor %}
+                    {% for card in gas_cards %}
+                        <option value="{{ card['card_number'] }}" data-status="{{ card['status'] }}">{{ card['card_number'] }}</option>
+                    {% endfor %}
                     <option value="other">其他（手动输入）</option>
                 </select>
                 <input type="text" name="gasCard_custom" id="gasCard_custom" placeholder="手动输入加油卡号" style="display:none;margin-left:8px;">
 
+                <div id="returnFields" style="margin-top:8px; display:none;">
+                    <label for="mileage">里程</label>
+                    <input type="text" name="mileage" id="mileage" placeholder="填写里程">
+                    <label for="balance" style="margin-left:8px;">加油卡余额</label>
+                    <input type="text" name="balance" id="balance" placeholder="填写余额">
+                </div>
+
                 <button type="submit">获取密码</button>
             </form>
+
+            <p id="selectionNote" style="color: #555; margin-top:8px;"></p>
+
+            {% if request.args.get('password') %}
+                <p>临时密码: {{ request.args.get('password') }}</p>
+            {% elif request.args.get('no_password') %}
+                <p style="color:#b00;">没有可用的临时密码，请联系管理员添加。</p>
+            {% endif %}
+
+            <div id="retrieveError" role="alert" style="color: #b00; margin-top:8px;"></div>
 
             <script>
                 function toggleGasCardInput(sel) {
                     var custom = document.getElementById('gasCard_custom');
+                    if (!custom) return;
                     if (sel.value === 'other') {
                         custom.style.display = 'inline-block';
                     } else {
@@ -40,6 +56,105 @@
                         custom.value = '';
                     }
                 }
+
+                var retrieveForm = document.getElementById('retrieveForm');
+                var retrieveError = document.getElementById('retrieveError');
+                retrieveForm.addEventListener('submit', function(e){
+                    retrieveError.textContent = '';
+                    var vehicle = (document.getElementById('vehicle').value || '').trim();
+                    var gasCard = (document.getElementById('gasCard').value || '').trim();
+                    var gasCardCustom = (document.getElementById('gasCard_custom').value || '').trim();
+
+                    if (gasCard === 'other' && !gasCardCustom) {
+                        e.preventDefault();
+                        retrieveError.textContent = '请选择加油卡。';
+                        document.getElementById('gasCard_custom').focus();
+                        return false;
+                    }
+
+                    if (!vehicle && !gasCard && !gasCardCustom) {
+                        e.preventDefault();
+                        retrieveError.textContent = '必须选择车辆或加油卡之一才能提交。';
+                        document.getElementById('vehicle').focus();
+                        return false;
+                    }
+                    // show a quick note if both vehicle and gas card are selected
+                    var note = document.getElementById('selectionNote');
+                    var returnFields = document.getElementById('returnFields');
+                    var mileageInput = document.getElementById('mileage');
+                    var balanceInput = document.getElementById('balance');
+
+                    // check statuses from selected options
+                    var vehicleOpt = document.getElementById('vehicle').selectedOptions[0];
+                    var gasOpt = document.getElementById('gasCard').selectedOptions[0];
+                    var vehicleStatus = vehicleOpt ? vehicleOpt.getAttribute('data-status') : null;
+                    var gasStatus = gasOpt ? gasOpt.getAttribute('data-status') : null;
+
+                    var willReturnVehicle = vehicle && vehicleStatus === 'taken';
+                    var willReturnGas = (gasCard || gasCardCustom) && gasStatus === 'taken';
+
+                    if (vehicle && (gasCard || gasCardCustom)) {
+                        note.textContent = '注意：归还时需要更新里程与加油卡余额。';
+                    } else if (vehicle && !(gasCard || gasCardCustom)) {
+                        note.textContent = '注意：归还时需更新里程。';
+                    } else if ((gasCard || gasCardCustom) && !vehicle) {
+                        note.textContent = '注意：归还时需更新加油卡余额。';
+                    } else {
+                        note.textContent = '';
+                    }
+
+                    // show/hide return inputs and set required when selected resource status is 'taken'
+                    if (willReturnVehicle || willReturnGas) {
+                        returnFields.style.display = 'block';
+                        mileageInput.required = willReturnVehicle;
+                        balanceInput.required = willReturnGas;
+                    } else {
+                        returnFields.style.display = 'none';
+                        mileageInput.required = false;
+                        balanceInput.required = false;
+                    }
+                    // clear error when valid
+                     retrieveError.textContent = '';
+                });
+                // update note when selection changes
+                document.getElementById('vehicle').addEventListener('change', function(){
+                    var vehicle = (document.getElementById('vehicle').value || '').trim();
+                    var gasCard = (document.getElementById('gasCard').value || '').trim();
+                    var gasCardCustom = (document.getElementById('gasCard_custom').value || '').trim();
+                    var note = document.getElementById('selectionNote');
+                    var returnFields = document.getElementById('returnFields');
+                    var mileageInput = document.getElementById('mileage');
+                    var balanceInput = document.getElementById('balance');
+                    var vehicleOpt = document.getElementById('vehicle').selectedOptions[0];
+                    var gasOpt = document.getElementById('gasCard').selectedOptions[0];
+                    var vehicleStatus = vehicleOpt ? vehicleOpt.getAttribute('data-status') : null;
+                    var gasStatus = gasOpt ? gasOpt.getAttribute('data-status') : null;
+                    var willReturnVehicle = vehicle && (gasCard || gasCardCustom) ? vehicleStatus === 'taken' : vehicle && vehicleStatus === 'taken';
+                    var willReturnGas = (gasCard || gasCardCustom) && gasStatus === 'taken';
+                    if (vehicle && (gasCard || gasCardCustom)) note.textContent = '注意：归还时需要更新里程与加油卡余额。';
+                    else if (vehicle && !(gasCard || gasCardCustom)) note.textContent = '注意：归还时需更新里程。';
+                    else if ((gasCard || gasCardCustom) && !vehicle) note.textContent = '注意：归还时需更新加油卡余额。';
+                    else note.textContent = '';
+                    if (willReturnVehicle || willReturnGas) {
+                        returnFields.style.display = 'block';
+                        mileageInput.required = willReturnVehicle;
+                        balanceInput.required = willReturnGas;
+                    } else {
+                        returnFields.style.display = 'none';
+                        mileageInput.required = false;
+                        balanceInput.required = false;
+                    }
+                });
+                document.getElementById('gasCard').addEventListener('change', function(){
+                    var vehicle = (document.getElementById('vehicle').value || '').trim();
+                    var gasCard = (document.getElementById('gasCard').value || '').trim();
+                    var gasCardCustom = (document.getElementById('gasCard_custom').value || '').trim();
+                    var note = document.getElementById('selectionNote');
+                    if (vehicle && (gasCard || gasCardCustom)) note.textContent = '注意：归还时需要同时更新里程与加油卡余额。';
+                    else if (vehicle && !(gasCard || gasCardCustom)) note.textContent = '注意：归还时需更新里程。';
+                    else if ((gasCard || gasCardCustom) && !vehicle) note.textContent = '注意：归还时需更新加油卡余额。';
+                    else note.textContent = '';
+                });
             </script>
         {% elif g.user.is_identified == 2 %}
             <p>已提交核实申请，请联系网管通过核实。</p>

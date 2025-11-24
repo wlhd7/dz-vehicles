@@ -31,5 +31,28 @@ CREATE TABLE IF NOT EXISTS applications (
 CREATE TABLE IF NOT EXISTS gas_cards (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	card_number TEXT UNIQUE NOT NULL,
-	balance REAL DEFAULT 0.0
+	balance REAL DEFAULT 0.0,
+	status TEXT NOT NULL DEFAULT 'returned'
+);
+
+-- Passwords table for admin-provisioned temporary passwords
+CREATE TABLE IF NOT EXISTS passwords (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	password TEXT NOT NULL,
+	status TEXT NOT NULL,
+	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	used_at TIMESTAMP
+);
+
+-- Assignments track which password was issued for which resource(s)
+CREATE TABLE IF NOT EXISTS assignments (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	vehicle_id INTEGER,
+	gas_card_id INTEGER,
+	password TEXT,
+	status TEXT NOT NULL,
+	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated TIMESTAMP,
+	FOREIGN KEY(vehicle_id) REFERENCES vehicles(id),
+	FOREIGN KEY(gas_card_id) REFERENCES gas_cards(id)
 );

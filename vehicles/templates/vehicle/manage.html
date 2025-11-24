@@ -54,7 +54,7 @@ document.getElementById('addVehicleForm').addEventListener('submit', async funct
 
 	const payload = { plate, insurance, inspection, maintenance };
 
-	const res = await fetch('{{ url_for("registration.add_vehicle") }}', {
+	const res = await fetch('{{ url_for("vehicle.add") }}', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(payload)
@@ -66,12 +66,13 @@ document.getElementById('addVehicleForm').addEventListener('submit', async funct
 		return;
 	}
 
-	// Append new row to table
+	// Append new row to table using returned id
 	const tbody = document.querySelector('#vehiclesTable tbody');
 	const newRow = document.createElement('tr');
-	// NOTE: server does not return id, so reload to show real id
+	const newId = data.id || '--';
+	newRow.setAttribute('data-id', newId);
 	newRow.innerHTML = `
-		<td>--</td>
+		<td>${newId}</td>
 		<td>${plate}</td>
 		<td>${insurance}</td>
 		<td>${inspection}</td>
@@ -100,7 +101,7 @@ document.querySelector('#vehiclesTable').addEventListener('click', async functio
 
 	if (!confirm('确认删除该车辆？')) return;
 
-	const res = await fetch('{{ url_for("registration.delete_vehicle") }}', {
+	const res = await fetch('{{ url_for("vehicle.delete") }}', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ id })

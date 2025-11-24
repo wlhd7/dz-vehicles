@@ -4,6 +4,15 @@ from .lock import admin_required
 
 bp = Blueprint('vehicle', __name__, url_prefix='/vehicle')
 
+
+@bp.route('/manage')
+@admin_required
+def manage():
+    db = get_db()
+    vehicles = db.execute('SELECT * FROM vehicles').fetchall()
+    return render_template('vehicle/manage.html', vehicles=vehicles)
+    
+    
 @bp.post('/add')
 @admin_required
 def add():

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>归还并更新信息</h2>
+<p>借用记录 ID: {{ assignment['id'] }}</p>
+
+<form id="returnForm" method="post">
+  <input type="hidden" name="related_assignment_ids" id="related_assignment_ids" value="{{ related_assignment_ids | join(',') }}">
+  <input type="hidden" name="requested_v" id="requested_v" value="{{ '1' if vehicle is not none else '0' }}">
+  <input type="hidden" name="requested_g" id="requested_g" value="{{ '1' if gas_card is not none else '0' }}">
+  {% if vehicle %}
+    <h3>车辆: {{ vehicle['plate'] }}</h3>
+    <label for="mileage">里程</label>
+    <input type="text" name="mileage" id="mileage" value="{{ vehicle['mileage'] or '' }}">
+  {% endif %}
+
+  {% if gas_card %}
+    <h3>加油卡: {{ gas_card['card_number'] }}</h3>
+    <label for="balance">余额</label>
+    <input type="text" name="balance" id="balance" value="{{ gas_card['balance'] or 0.0 }}">
+  {% endif %}
+  <p id="returnNote" style="color: #555;"></p>
+  {% if not vehicle and not gas_card %}
+    <p style="color:#b00;">未找到需要归还的车辆或加油卡。请确认您选择的是正确的借用记录。</p>
+  {% endif %}
+  {% if request.args.get('no_password_return') %}
+    <p style="color:#b00;">当前没有可用的临时密码，无法完成归还。请联系管理员添加临时密码后再试。</p>
+  {% endif %}
+  <button type="submit" id="returnSubmit">提交并归还</button>
+</form>
+
+<script>
+// Client-side enforcement: if both vehicle and gas card are present, require both fields.
+(function(){
+  const hasVehicle = {{ 'true' if vehicle else 'false' }};
+  const hasGas = {{ 'true' if gas_card else 'false' }};
+  const form = document.getElementById('returnForm');
+  const mileage = document.getElementById('mileage');
+  const balance = document.getElementById('balance');
+  const note = document.getElementById('returnNote');
+
+  if (hasVehicle && hasGas) {
+    // both required
+    if (mileage) mileage.setAttribute('required', 'required');
+    if (balance) balance.setAttribute('required', 'required');
+    note.textContent = '此借用同时关联车辆与加油卡，提交时需同时填写里程与加油卡余额。';
+  } else if (hasVehicle) {
+    if (mileage) mileage.setAttribute('required', 'required');
+    note.textContent = '请填写里程以完成归还。';
+  } else if (hasGas) {
+    if (balance) balance.setAttribute('required', 'required');
+    note.textContent = '请填写加油卡余额以完成归还。';
+  }
+
+  form.addEventListener('submit', function(e){
+    // extra safety: prevent empty submits when required fields are missing
+    if (hasVehicle && hasGas) {
+      if (!mileage.value.trim() || !balance.value.trim()) {
+        e.preventDefault();
+        alert('请同时填写里程与加油卡余额。');
+      }
+    } else if (hasVehicle) {
+      if (!mileage.value.trim()) {
+        e.preventDefault();
+        alert('请填写里程。');
+      }
+    } else if (hasGas) {
+      if (!balance.value.trim()) {
+        e.preventDefault();
+        alert('请填写加油卡余额。');
+      }
+    }
+  });
+  // disable submit if nothing to update
+  const submit = document.getElementById('returnSubmit');
+  if (!hasVehicle && !hasGas) {
+    if (submit) {
+      submit.disabled = true;
+    }
+  }
+})();
+</script>
+
+{% endblock %}
