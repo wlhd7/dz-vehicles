@@ -1,0 +1,12 @@
+.retrieveForm {
+    border: 2px solid green;
+    padding: 10px;
+}
+
+.index-link {
+    display: block;
+    margin: 5px 0;
+    font-weight: bold;
+    color: #2c3e50;
+    text-decoration: none;
+}

@@ -21,31 +21,16 @@ def add_vehicle():
             return jsonify({'error': '没有接受到数据'}), 400
 
         plate = data.get('plate')
-        insurance = data.get('insurance')
-        inspection = data.get('inspection')
-        maintenance = data.get('maintenance')
-
-        if not all([plate, insurance, inspection, maintenance]):
-            return jsonify({'error': '所有字段是必填的'}), 400
-
-        print(f"接受到数据: {plate}, {insurance}, {inspection}, {maintenance}")
+        if not plate:
+            return jsonify({'error': '车牌是必填的'}), 400
 
         db = get_db()
-        db.execute(
-                'INSERT INTO vehicles (plate, insurance, inspection, maintenance)'
-                ' VALUES (?, ?, ?, ?)',
-                (plate, insurance, inspection, maintenance)
-            )
+        db.execute('INSERT INTO vehicles (plate) VALUES (?)', (plate,))
         db.commit()
 
         return jsonify({
             'message': '汽车信息添加成功',
-            'data': {
-                'plate': plate,
-                'insurance': insurance,
-                'inspection': inspection,
-                'maintenance': maintenance
-            }
+            'data': {'plate': plate}
         }), 200
 
     return render_template('add-vehicle.html')
@@ -95,36 +80,5 @@ def update_maintenance():
 
 @bp.post('/update-mileage')
 def update_mileage():
-    data = request.get_json()
-
-    if not data:
-        return jsonify({'error': '没有接收到数据'}), 400
-    
-    vehicle_id = data.get('vehicle_id')
-    mileage = data.get('mileage')
-    
-    if not vehicle_id or not mileage:
-        return jsonify({'error': '车辆ID和里程是必填的'}), 400
-    
-    try:
-        db = get_db()
-        # 更新数据库中的里程
-        db.execute(
-            'UPDATE vehicles SET mileage = ? WHERE id = ?',
-            (mileage, vehicle_id)
-        )
-        db.commit()
-        
-        print(f"更新车辆 {vehicle_id} 的里程为: {mileage}")
-        
-        return jsonify({
-            'message': '里程更新成功',
-            'data': {
-                'vehicle_id': vehicle_id,
-                'mileage': mileage
-            }
-        }), 200
-        
-    except Exception as e:
-        print(f"更新里程错误: {e}")
-        return jsonify({'error': '数据库更新失败'}), 500
+    # Mileage no longer stored on vehicles. This endpoint is deprecated.
+    return jsonify({'error': '里程字段已从车辆记录中移除'}), 400

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>加油卡操作记录（最近 200 条）</h2>
+<form method="get" action="{{ url_for('record.gas') }}" style="margin-top:8px; margin-bottom:8px;">
+	<label for="card">加油卡过滤：</label>
+	<input id="card" name="card" value="{{ card or '' }}" placeholder="输入卡号，如 123456" />
+	<button type="submit">筛选</button>
+	{% if card %}<a href="{{ url_for('record.gas') }}" style="margin-left:8px;">清除</a>{% endif %}
+</form>
+<table style="width:100%; border-collapse:collapse; margin-top:8px;">
+	<thead>
+		<tr>
+			<th style="text-align:left; padding:6px; border-bottom:1px solid #ccc;">时间</th>
+			<th style="text-align:left; padding:6px; border-bottom:1px solid #ccc;">加油卡</th>
+			<th style="text-align:left; padding:6px; border-bottom:1px solid #ccc;">余额</th>
+			<th style="text-align:left; padding:6px; border-bottom:1px solid #ccc;">操作</th>
+			<th style="text-align:left; padding:6px; border-bottom:1px solid #ccc;">姓名</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for r in records %}
+		<tr>
+			<td style="padding:6px; border-bottom:1px solid #eee;">{{ r['timestamp'] }}</td>
+			<td style="padding:6px; border-bottom:1px solid #eee;">{{ r['gas_card_number'] or '未知' }}</td>
+			<td style="padding:6px; border-bottom:1px solid #eee;">{% if r['balance'] is not none %}{{ '%.2f'|format(r['balance']) }}{% else %}-{% endif %}</td>
+			<td style="padding:6px; border-bottom:1px solid #eee;">{% if r['action'] == 'taken' %}取{% elif r['action'] == 'returned' %}还{% else %}{{ r['action'] }}{% endif %}</td>
+			<td style="padding:6px; border-bottom:1px solid #eee;">{{ r['username'] or '匿名' }}</td>
+		</tr>
+	{% else %}
+		<tr><td colspan="4" style="padding:6px;">暂无记录。</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

@@ -10,8 +10,7 @@
   <input type="hidden" name="requested_g" id="requested_g" value="{{ '1' if gas_card is not none else '0' }}">
   {% if vehicle %}
     <h3>车辆: {{ vehicle['plate'] }}</h3>
-    <label for="mileage">里程</label>
-    <input type="text" name="mileage" id="mileage" value="{{ vehicle['mileage'] or '' }}">
+    <p>车辆信息已更新，系统不再记录里程。</p>
   {% endif %}
 
   {% if gas_card %}
@@ -35,18 +34,15 @@
   const hasVehicle = {{ 'true' if vehicle else 'false' }};
   const hasGas = {{ 'true' if gas_card else 'false' }};
   const form = document.getElementById('returnForm');
-  const mileage = document.getElementById('mileage');
   const balance = document.getElementById('balance');
   const note = document.getElementById('returnNote');
 
   if (hasVehicle && hasGas) {
-    // both required
-    if (mileage) mileage.setAttribute('required', 'required');
+    // require balance for gas card; vehicle has no mileage
     if (balance) balance.setAttribute('required', 'required');
-    note.textContent = '此借用同时关联车辆与加油卡，提交时需同时填写里程与加油卡余额。';
+    note.textContent = '此借用同时关联车辆与加油卡，提交时需填写加油卡余额。';
   } else if (hasVehicle) {
-    if (mileage) mileage.setAttribute('required', 'required');
-    note.textContent = '请填写里程以完成归还。';
+    note.textContent = '车辆归还无需额外信息。';
   } else if (hasGas) {
     if (balance) balance.setAttribute('required', 'required');
     note.textContent = '请填写加油卡余额以完成归还。';
@@ -54,17 +50,7 @@
 
   form.addEventListener('submit', function(e){
     // extra safety: prevent empty submits when required fields are missing
-    if (hasVehicle && hasGas) {
-      if (!mileage.value.trim() || !balance.value.trim()) {
-        e.preventDefault();
-        alert('请同时填写里程与加油卡余额。');
-      }
-    } else if (hasVehicle) {
-      if (!mileage.value.trim()) {
-        e.preventDefault();
-        alert('请填写里程。');
-      }
-    } else if (hasGas) {
+    if (hasGas) {
       if (!balance.value.trim()) {
         e.preventDefault();
         alert('请填写加油卡余额。');

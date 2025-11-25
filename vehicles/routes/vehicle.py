@@ -21,18 +21,14 @@ def add():
         return jsonify({'error': '没有接收到数据'}), 400
 
     plate = data.get('plate')
-    insurance = data.get('insurance')
-    inspection = data.get('inspection')
-    maintenance = data.get('maintenance')
-
-    if not all([plate, insurance, inspection, maintenance]):
-        return jsonify({'error': '所有字段是必填的'}), 400
+    if not plate:
+        return jsonify({'error': '车牌是必填的'}), 400
 
     try:
         db = get_db()
         cur = db.execute(
-            'INSERT INTO vehicles (plate, insurance, inspection, maintenance) VALUES (?, ?, ?, ?)',
-            (plate, insurance, inspection, maintenance)
+            'INSERT INTO vehicles (plate) VALUES (?)',
+            (plate,)
         )
         db.commit()
         vid = cur.lastrowid
