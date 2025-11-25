@@ -10,5 +10,6 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+	<a href="{{ url_for('home.index') }}">返回首页</a>
 	{% block content %}{% endblock %}
 </body>
