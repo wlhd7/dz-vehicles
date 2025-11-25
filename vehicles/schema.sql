@@ -39,18 +39,6 @@ CREATE TABLE IF NOT EXISTS passwords (
 	password TEXT NOT NULL
 );
 
--- Assignments track which password was issued for which resource(s)
-CREATE TABLE IF NOT EXISTS assignments (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	vehicle_id INTEGER,
-	gas_card_id INTEGER,
-	password TEXT,
-	status TEXT NOT NULL,
-	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY(vehicle_id) REFERENCES vehicles(id),
-	FOREIGN KEY(gas_card_id) REFERENCES gas_cards(id)
-);
-
 CREATE TABLE IF NOT EXISTS record_vehicles (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	vehicle_id INTEGER NOT NULL,

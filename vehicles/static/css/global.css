@@ -1,0 +1,52 @@
+/* Global stylesheet with mobile-friendly defaults */
+
+/* Base defaults */
+:root {
+  /* slightly smaller default font-size */
+  font-size: 15px;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color: #111;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Form controls and buttons use rem units so they scale with root font-size */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* Larger, more readable UI on small screens */
+
+@media (max-width: 600px) {
+  /* index page will opt into a larger size; keep slightly smaller globally */
+  :root { font-size: 17px; }
+
+  body {
+    padding: 0.6rem;
+    line-height: 1.45;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.15;
+  }
+
+  /* Make form controls easier to tap */
+  button, input, select, textarea {
+    font-size: 0.98rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  /* Improve table readability on small screens */
+  table { font-size: 0.95rem; }
+}
+
+/* Utility: increase touch targets where needed */
+.touch-large { padding: 0.6rem 1rem; }

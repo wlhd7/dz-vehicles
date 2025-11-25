@@ -10,3 +10,75 @@
     color: #2c3e50;
     text-decoration: none;
 }
+
+/* Mobile / responsive styles */
+/* Make forms and controls full-width on small screens */
+.retrieveForm,
+.retrieveForm label,
+.retrieveForm select,
+.retrieveForm input,
+.retrieveForm button {
+    box-sizing: border-box;
+}
+
+.retrieveForm {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.retrieveForm label {
+    display: block;
+    margin: 6px 0 4px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.retrieveForm select,
+.retrieveForm input[type="text"],
+.retrieveForm input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.retrieveForm button {
+    display: inline-block;
+    padding: 10px 14px;
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.retrieveError {
+    color: #b00;
+    margin-top: 6px;
+}
+
+/* Inline code badges for available cards */
+code { background:#f3f4f6; padding:2px 6px; border-radius:4px; font-family:monospace; }
+
+/* Responsive tables: wrap horizontally on small screens */
+table { width:100%; }
+.table-wrap { overflow-x:auto; }
+
+/* Improve table readability on small screens */
+@media (max-width: 600px) {
+    /* increase base font-size for mobile readability */
+    body { font-size: 18px; }
+    .retrieveForm { padding: 8px; border-width:1px; }
+    table thead { display:none; }
+    table tr { display:block; margin-bottom:10px; border-bottom:1px solid #eee; }
+    table td { display:block; padding:6px 0; }
+    table td:before { content: attr(data-label); font-weight:600; display:inline-block; width:110px; }
+}
+
+/* Slightly larger tap targets on touch devices */
+@media (pointer: coarse) {
+    .retrieveForm button { padding: 14px 16px; font-size:1.05rem; }
+}

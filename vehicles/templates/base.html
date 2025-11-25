@@ -1,12 +1,14 @@
 <!doctype html>
 
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
 	{% block head %}{% endblock %}
 	<title>
-		{% block title %}东振车辆管理系统{% endblock %}
+		{% block title %}东振车辆管理{% endblock %}
 	</title>
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
 	{% block content %}{% endblock %}
 </body>

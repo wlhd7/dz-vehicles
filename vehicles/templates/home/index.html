@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home/index.css') }}">
 {% endblock %}
 
+{% block body_class %}index-page{% endblock %}
+
 {% block content %}
     <a href="{{ url_for('record.vehicle') }}" class="index-link">查看车辆记录</a>
     <a href="{{ url_for('record.gas') }}" class="index-link">查看油卡记录</a>
