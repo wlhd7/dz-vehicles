@@ -11,7 +11,7 @@
     <a href="{{ url_for('record.vehicle') }}" class="index-link">查看车辆记录</a>
     <a href="{{ url_for('record.gas') }}" class="index-link">查看油卡记录</a>
     {% if g.user %}
-        <h2>欢迎, {{ g.user.username }}!</h2>
+        <h2>已登陆</h2>
         {% if g.user.is_identified == 1 %}
             <p>已通过核实。</p>
 
@@ -141,7 +141,7 @@
             <p>微信： 18665373915</p>
         {% else %}
             {# 0 = none, 3 = rejected -> allow (re)apply #}
-            <a href="{{ url_for('auth.identification') }}">认证</a>
+            <a href="{{ url_for('auth.identification') }}">初次登陆, 请点击此处进入审核页面。</a>
             {% if g.user.is_identified == 3 %}
                 <p>您的申请被拒绝, 请重新提交。注：用户名必须使用真实姓名。</p>
                 <a href="{{ url_for('auth.register') }}">重新注册</a>
