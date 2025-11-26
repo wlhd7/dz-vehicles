@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS applications (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	username TEXT NOT NULL,
 	status TEXT NOT NULL DEFAULT 'pending',
-	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created TIMESTAMP DEFAULT (datetime('now', '+8 hours')),
 	FOREIGN KEY (username) REFERENCES users (username)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS record_vehicles (
 	vehicle_id INTEGER NOT NULL,
 	user_id INTEGER NOT NULL,
 	action TEXT NOT NULL,
-	timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	timestamp TIMESTAMP DEFAULT (datetime('now', '+8 hours')),
 	FOREIGN KEY(vehicle_id) REFERENCES vehicles(id),
 	FOREIGN KEY(user_id) REFERENCES users(id)
 );
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS record_gas_cards (
 	user_id INTEGER NOT NULL,
 	gas_card_id INTEGER NOT NULL,
 	action TEXT NOT NULL,
-	timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	timestamp TIMESTAMP DEFAULT (datetime('now', '+8 hours')),
 	FOREIGN KEY(gas_card_id) REFERENCES gas_cards(id),
 	FOREIGN KEY(user_id) REFERENCES users(id)
 );

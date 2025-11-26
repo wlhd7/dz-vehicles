@@ -103,12 +103,12 @@ def submit():
             if vehicle and uid is not None:
                 old = vehicle['status']
                 action = 'returned' if old == 'taken' else 'taken'
-                db.execute('INSERT INTO record_vehicles (vehicle_id, user_id, action) VALUES (?, ?, ?)', (vehicle['id'], uid, action))
+                db.execute("INSERT INTO record_vehicles (vehicle_id, user_id, action, timestamp) VALUES (?, ?, ?, datetime('now', '+8 hours'))", (vehicle['id'], uid, action))
                 db.execute("DELETE FROM record_vehicles WHERE id NOT IN (SELECT id FROM record_vehicles ORDER BY id DESC LIMIT 200)")
             if gas and uid is not None:
                 oldg = gas['status']
                 actiong = 'returned' if oldg == 'taken' else 'taken'
-                db.execute('INSERT INTO record_gas_cards (user_id, gas_card_id, action) VALUES (?, ?, ?)', (uid, gas['id'], actiong))
+                db.execute("INSERT INTO record_gas_cards (user_id, gas_card_id, action, timestamp) VALUES (?, ?, ?, datetime('now', '+8 hours'))", (uid, gas['id'], actiong))
                 db.execute("DELETE FROM record_gas_cards WHERE id NOT IN (SELECT id FROM record_gas_cards ORDER BY id DESC LIMIT 200)")
             db.commit()
         except Exception:

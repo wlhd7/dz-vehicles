@@ -41,6 +41,19 @@
                 <button type="submit">获取密码</button>
 
                 <div style="margin-top:12px;">
+                    <strong>可用车辆：</strong>
+                    {% set vehicle_available = vehicles|selectattr('status','equalto','returned')|list %}
+                    {% if vehicle_available %}
+                        <span>{{ vehicle_available|length }} 辆可用：</span>
+                        {% for v in vehicle_available %}
+                            <code style="margin-right:6px;">{{ v['plate'] }}</code>
+                        {% endfor %}
+                    {% else %}
+                        <span>暂无可用车辆。</span>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top:8px;">
                     <strong>可用加油卡：</strong>
                     {% set available = gas_cards|selectattr('status','equalto','returned')|list %}
                     {% if available %}
@@ -53,8 +66,6 @@
                     {% endif %}
                 </div>
             </form>
-
-                        
 
             <p id="selectionNote" style="color: #555; margin-top:8px;"></p>
 

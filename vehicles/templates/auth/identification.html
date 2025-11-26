@@ -15,12 +15,12 @@
 {% endblock %}
 
 {% block content %}
-    <h2>点击此处进行身份核实</h2>
     {% if g.user.is_identified == 1 %}
         <p>已通过核实。</p>
     {% elif g.user.is_identified == 2 %}
         <p>已提交，请联系网管通过核实。</p>
     {% else %}
+        <h2>点击下方提交按钮进行身份核实</h2>
         <form method="post">
             <input type="submit" value="提交">
         </form>
