@@ -41,15 +41,38 @@ def register():
 
         try:
             hashed_password = generate_password_hash(password)
-            db.execute(
+            cur = db.execute(
                 'INSERT INTO users (username, password) VALUES (?, ?)',
                 (username, hashed_password)
             )
             db.commit()
+            # Auto-login the newly created user
+            session.clear()
+            user_id = cur.lastrowid
+            session['user_id'] = user_id
+
+            # Auto-submit identification application and mark user as pending (2)
+            try:
+                # prevent duplicate pending applications just in case
+                existing = db.execute(
+                    "SELECT * FROM applications WHERE username = ? AND status = 'pending'",
+                    (username,)
+                ).fetchone()
+                if not existing:
+                    db.execute('INSERT INTO applications (username, status) VALUES (?, ?)', (username, 'pending'))
+                    db.execute('UPDATE users SET is_identified = 2 WHERE id = ?', (user_id,))
+                    db.commit()
+                    flash('注册并自动提交了核实申请。', 'success')
+                else:
+                    flash('注册成功，已有待处理的核实申请。', 'success')
+            except Exception as e:
+                # don't fail registration if auto-application fails
+                db.rollback()
+                flash('注册成功，但自动提交核实申请时发生错误，请手动提交核实。', 'warning')
+            # Redirect to home (user is already logged in)
+            return redirect(url_for('home.index'))
         except sqlite3.IntegrityError:
             flash(f"用户 {username} 已存在。", 'error')
-        else:
-            flash('注册成功，请登录。', 'success')
 
     return render_template('auth/register.html')
 
