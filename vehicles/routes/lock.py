@@ -30,9 +30,14 @@ def password():
             message = '请输入密码。'
         else:
             try:
-                db.execute('INSERT INTO passwords (password) VALUES (?)', (pw,))
-                db.commit()
-                message = '已添加密码。'
+                # avoid inserting duplicate passwords
+                exists = db.execute('SELECT id FROM passwords WHERE password = ? LIMIT 1', (pw,)).fetchone()
+                if exists:
+                    message = '该密码已存在。'
+                else:
+                    db.execute('INSERT INTO passwords (password) VALUES (?)', (pw,))
+                    db.commit()
+                    message = '已添加密码。'
             except Exception as e:
                 print(f"添加密码错误: {e}")
                 message = '添加密码失败。'
