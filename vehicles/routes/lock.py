@@ -28,6 +28,8 @@ def password():
         pw = (request.form.get('password') or '').strip()
         if not pw:
             message = '请输入密码。'
+        elif len(pw) != 8:
+            message = '密码长度必须为 8 位。'
         else:
             try:
                 # avoid inserting duplicate passwords
