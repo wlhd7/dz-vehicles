@@ -125,7 +125,19 @@ def submit():
             except Exception:
                 pass
 
-        # Issue/delete a temporary password
+        # Issue/delete a temporary password (skip issuing for admin users)
+        user = getattr(g, 'user', None)
+        is_admin = False
+        if user:
+            try:
+                is_admin = (user.get('username') if isinstance(user, dict) else user['username']) == 'admin'
+            except Exception:
+                is_admin = False
+
+        if is_admin:
+            # Admin does not receive a temporary password on submit
+            return redirect(url_for('home.index'))
+
         pw_row = db.execute("SELECT id, password FROM passwords ORDER BY id LIMIT 1").fetchone()
         if pw_row:
             issued = pw_row['password']
