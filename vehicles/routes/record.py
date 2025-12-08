@@ -39,28 +39,41 @@ def vehicle():
 def gas():
     db = get_db()
     card = (request.args.get('card') or '').strip()
-    if card:
-        rows = db.execute(
-            """
-            SELECT rg.id, rg.action, rg.timestamp, g.card_number AS gas_card_number, g.balance AS balance, u.username
-            FROM record_gas_cards rg
-            LEFT JOIN gas_cards g ON rg.gas_card_id = g.id
-            LEFT JOIN users u ON rg.user_id = u.id
-            WHERE g.card_number = ?
-            ORDER BY rg.id DESC
-            LIMIT 200
-            """,
-            (card,)
-        ).fetchall()
-    else:
-        rows = db.execute(
-            """
-            SELECT rg.id, rg.action, rg.timestamp, g.card_number AS gas_card_number, g.balance AS balance, u.username
-            FROM record_gas_cards rg
-            LEFT JOIN gas_cards g ON rg.gas_card_id = g.id
-            LEFT JOIN users u ON rg.user_id = u.id
-            ORDER BY rg.id DESC
-            LIMIT 200
-            """
-        ).fetchall()
+    query_with_balance = (
+        "SELECT rg.id, rg.action, rg.timestamp, g.card_number AS gas_card_number, rg.balance AS balance, u.username "
+        "FROM record_gas_cards rg "
+        "LEFT JOIN gas_cards g ON rg.gas_card_id = g.id "
+        "LEFT JOIN users u ON rg.user_id = u.id "
+    )
+    try:
+        if card:
+            rows = db.execute(query_with_balance + "WHERE g.card_number = ? ORDER BY rg.id DESC LIMIT 200", (card,)).fetchall()
+        else:
+            rows = db.execute(query_with_balance + "ORDER BY rg.id DESC LIMIT 200").fetchall()
+    except Exception:
+        # fallback for DBs that don't have `rg.balance` column: use current gas card balance
+        if card:
+            rows = db.execute(
+                """
+                SELECT rg.id, rg.action, rg.timestamp, g.card_number AS gas_card_number, g.balance AS balance, u.username
+                FROM record_gas_cards rg
+                LEFT JOIN gas_cards g ON rg.gas_card_id = g.id
+                LEFT JOIN users u ON rg.user_id = u.id
+                WHERE g.card_number = ?
+                ORDER BY rg.id DESC
+                LIMIT 200
+                """,
+                (card,)
+            ).fetchall()
+        else:
+            rows = db.execute(
+                """
+                SELECT rg.id, rg.action, rg.timestamp, g.card_number AS gas_card_number, g.balance AS balance, u.username
+                FROM record_gas_cards rg
+                LEFT JOIN gas_cards g ON rg.gas_card_id = g.id
+                LEFT JOIN users u ON rg.user_id = u.id
+                ORDER BY rg.id DESC
+                LIMIT 200
+                """
+            ).fetchall()
     return render_template('record/gas.html', records=rows, card=card)

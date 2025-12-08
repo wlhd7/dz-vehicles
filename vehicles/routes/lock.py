@@ -53,6 +53,7 @@ def submit():
     gas_card_sel = (request.form.get('gasCard') or '').strip()
     gas_card_custom = (request.form.get('gasCard_custom') or '').strip()
     balance = (request.form.get('balance') or '').strip()
+    bal_val = None
 
     # determine gas card number (prefers custom input if chosen)
     gas_card_number = ''
@@ -115,7 +116,17 @@ def submit():
             if gas and uid is not None:
                 oldg = gas['status']
                 actiong = 'returned' if oldg == 'taken' else 'taken'
-                db.execute("INSERT INTO record_gas_cards (user_id, gas_card_id, action, timestamp) VALUES (?, ?, ?, datetime('now', '+8 hours'))", (uid, gas['id'], actiong))
+                # record balance at the moment of return; use bal_val if we have one
+                rec_balance = bal_val if actiong == 'returned' else None
+                try:
+                    db.execute("INSERT INTO record_gas_cards (user_id, gas_card_id, action, balance, timestamp) VALUES (?, ?, ?, ?, datetime('now', '+8 hours'))", (uid, gas['id'], actiong, rec_balance))
+                except Exception:
+                    # fallback for older DBs without `balance` column
+                    try:
+                        db.execute("INSERT INTO record_gas_cards (user_id, gas_card_id, action, timestamp) VALUES (?, ?, ?, datetime('now', '+8 hours'))", (uid, gas['id'], actiong))
+                    except Exception:
+                        # give up on recording this gas card event
+                        pass
                 db.execute("DELETE FROM record_gas_cards WHERE id NOT IN (SELECT id FROM record_gas_cards ORDER BY id DESC LIMIT 200)")
             db.commit()
         except Exception:

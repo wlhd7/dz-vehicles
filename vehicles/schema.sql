@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS record_gas_cards (
 	user_id INTEGER NOT NULL,
 	gas_card_id INTEGER NOT NULL,
 	action TEXT NOT NULL,
+	balance REAL,
 	timestamp TIMESTAMP DEFAULT (datetime('now', '+8 hours')),
 	FOREIGN KEY(gas_card_id) REFERENCES gas_cards(id),
 	FOREIGN KEY(user_id) REFERENCES users(id)
