@@ -34,7 +34,7 @@
                 <select name="gasCard" id="gasCard" onchange="toggleGasCardInput(this)">
                     <option value="">-- 请选择加油卡 --</option>
                     {% for card in gas_cards %}
-                        <option value="{{ card['card_number'] }}" data-status="{{ card['status'] }}">{{ card['card_number'] }}</option>
+                        <option value="{{ card['card_number'] }}" data-status="{{ card['status'] }}">{{ card['card_number'] }}{% if card['balance'] is not none %} ({{ '%.2f'|format(card['balance']) }} 元){% endif %}</option>
                     {% endfor %}
                 </select>
                 <input type="text" name="gasCard_custom" id="gasCard_custom" placeholder="手动输入加油卡号" style="display:none;margin-left:8px;">
@@ -69,7 +69,7 @@
                     {% if available %}
                         <span>{{ available|length }} 张可用：</span>
                         {% for c in available %}
-                            <code style="margin-right:6px;">{{ c['card_number'] }}</code>
+                            <code style="margin-right:6px;">{{ c['card_number'] }}{% if c['balance'] is not none %} ({{ '%.2f'|format(c['balance']) }} 元){% endif %}</code>
                         {% endfor %}
                     {% else %}
                         <span>暂无可用加油卡。</span>
