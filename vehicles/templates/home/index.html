@@ -10,13 +10,17 @@
 {% block content %}
     <a href="{{ url_for('record.vehicle') }}" class="index-link">查看车辆记录</a>
     <a href="{{ url_for('record.gas') }}" class="index-link">查看油卡记录</a>
-    {% if g.user %}
-        <h2>已登陆</h2>
-        {% if g.user.is_identified == 1 %}
-            <p>已通过核实。</p>
 
+    {% if request.args.get('password') %}
+        <p class="password"><span class="temporary-password">临时密码:</span> {{ request.args.get('password') }}</p>
+    {% elif request.args.get('no_password') %}
+        <p style="color:#b00;">没有可用的临时密码，请联系管理员添加。</p>
+    {% endif %}
+
+    {% if g.user %}
+        {% if g.user.is_identified == 1 %}
             <form id="retrieveForm" class="retrieveForm" method="post" action="{{ url_for('lock.submit') }}">
-                <label for="vehicle">车辆</label>
+                <label for="vehicle" style="font-weight:bold">车辆</label>
                 <select name="vehicle" id="vehicle">
                     <option value="">-- 请选择车辆 --</option>
                     {% for v in vehicles %}
@@ -24,7 +28,9 @@
                     {% endfor %}
                 </select>
 
-                <label for="gasCard">加油卡</label>
+                <div style="display:inline-block; width:12px;"></div>
+
+                <label for="gasCard" style="font-weight:bold">加油卡</label>
                 <select name="gasCard" id="gasCard" onchange="toggleGasCardInput(this)">
                     <option value="">-- 请选择加油卡 --</option>
                     {% for card in gas_cards %}
@@ -38,7 +44,11 @@
                     <input type="text" name="balance" id="balance" placeholder="填写余额">
                 </div>
 
+                <div style="display:inline-block; width:12px;"></div>
+
                 <button type="submit">获取密码</button>
+
+                <div style="display:inline-block; width:12px;"></div>
 
                 <div style="margin-top:12px;">
                     <strong>可用车辆：</strong>
@@ -68,12 +78,6 @@
             </form>
 
             <p id="selectionNote" style="color: #555; margin-top:8px;"></p>
-
-            {% if request.args.get('password') %}
-                <p>临时密码: {{ request.args.get('password') }}</p>
-            {% elif request.args.get('no_password') %}
-                <p style="color:#b00;">没有可用的临时密码，请联系管理员添加。</p>
-            {% endif %}
 
             <div id="retrieveError" role="alert" style="color: #b00; margin-top:8px;"></div>
 

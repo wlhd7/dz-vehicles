@@ -45,11 +45,11 @@
 }
 
 .retrieveForm button {
-    display: inline-block;
+    display: block;
     padding: 10px 14px;
-    background: #2c3e50;
-    color: #fff;
-    border: none;
+    background: #d6ffad;
+    border: 1px solid black;
+    font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
@@ -58,6 +58,17 @@
 .retrieveError {
     color: #b00;
     margin-top: 6px;
+}
+
+.password {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.temporary-password {
+    color: red;
+    display: inline;
 }
 
 /* Inline code badges for available cards */
@@ -70,7 +81,7 @@ table { width:100%; }
 /* Improve table readability on small screens */
 @media (max-width: 600px) {
     /* increase base font-size for mobile readability */
-    body { font-size: 18px; }
+    body { font-size: 27px; }
     .retrieveForm { padding: 8px; border-width:1px; }
     table thead { display:none; }
     table tr { display:block; margin-bottom:10px; border-bottom:1px solid #eee; }
