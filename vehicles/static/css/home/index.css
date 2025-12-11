@@ -29,7 +29,7 @@
 .retrieveForm label {
     display: block;
     margin: 6px 0 4px;
-    font-size: 0.95rem;
+    font-size: 1.5rem;
     color: #333;
 }
 
@@ -41,7 +41,7 @@
     margin-bottom: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 
 .retrieveForm button {
@@ -52,7 +52,7 @@
     font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 
 .retrieveError {
@@ -91,5 +91,5 @@ table { width:100%; }
 
 /* Slightly larger tap targets on touch devices */
 @media (pointer: coarse) {
-    .retrieveForm button { padding: 14px 16px; font-size:1.05rem; }
+    .retrieveForm button { padding: 14px 16px; font-size: 2rem; }
 }
