@@ -18,7 +18,8 @@ COPY . /app
 # Ensure instance folder exists
 RUN mkdir -p /app/instance
 
-EXPOSE 5000
+# Gunicorn will listen on port 8000; Nginx (separate container) will proxy on 80
+EXPOSE 8000
 
-# Start the Flask development server. For production consider using gunicorn.
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Run Gunicorn (production WSGI server)
+CMD ["gunicorn", "vehicles:create_app()", "--bind", "0.0.0.0:8000", "--workers", "3"]
