@@ -7,7 +7,8 @@ from .routes import bps
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     # Keep session cookies persistent between device/browser restarts
-    app.permanent_session_lifetime = timedelta(days=30)
+    # Set a very long lifetime (10 years) so 'permanent' sessions effectively do not expire
+    app.permanent_session_lifetime = timedelta(days=3650)
     app.config.from_mapping(
            DATABASE=os.path.join(app.instance_path, 'vehicles.sqlite'),
         )
