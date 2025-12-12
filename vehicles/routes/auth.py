@@ -50,6 +50,7 @@ def register():
             session.clear()
             user_id = cur.lastrowid
             session['user_id'] = user_id
+            session.permanent = True
 
             # Auto-submit identification application and mark user as pending (2)
             try:
@@ -96,6 +97,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            session.permanent = True
             return redirect(url_for('home.index'))
 
         flash(error)
