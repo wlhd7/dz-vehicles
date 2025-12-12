@@ -1,0 +1,12 @@
+instance/*
+__pycache__/
+*.pyc
+.git
+.venv
+venv/
+env/
+.env
+node_modules/
+.pytest_cache/
+dist/
+build/
